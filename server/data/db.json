@@ -1,0 +1,29 @@
+{
+  "student": {
+    "name": "Arjun Sharma",
+    "email": "arjun@ayush.edu",
+    "college": "National Institute of Ayurveda (NIA), Jaipur",
+    "year": "Final Year (2024)",
+    "course": "BAMS",
+    "selectedKeywords": [
+      "GMP & Schedule T Compliance",
+      "Pharmacognosy & Raw Material Testing",
+      "Formulation R&D & Pharmaceutics"
+    ],
+    "foundation": null,
+    "specialization": null,
+    "practicedSkills": {},
+    "applications": [],
+    "mentorBookings": [],
+    "enrolledCourses": []
+  },
+  "company": {
+    "name": "Himalaya Wellness",
+    "email": "hr@himalaya.com",
+    "jobs": []
+  },
+  "metadata": {
+    "lastUpdated": "2026-09-06T11:49:47.616Z",
+    "version": "1.0.0"
+  }
+}
