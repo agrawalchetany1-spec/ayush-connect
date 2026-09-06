@@ -4,6 +4,11 @@ import { defineConfig } from 'vite'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
+  css: {
+    postcss: {
+      plugins: [],
+    },
+  },
   server: {
     host: true,
     allowedHosts: true,
@@ -15,4 +20,3 @@ export default defineConfig({
     },
   },
 })
-
