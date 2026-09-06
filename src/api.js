@@ -267,6 +267,42 @@ export async function apiPostCompanyJob(jobData) {
 }
 
 /**
+ * Upload Resume PDF API
+ */
+export async function apiUploadResume(resumeData) {
+  console.log('📡 [API POST] Uploading resume to /api/resume', resumeData.resumeName)
+  try {
+    const res = await fetch(`${API_BASE}/resume`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(resumeData),
+    })
+    return await res.json()
+  } catch (err) {
+    console.warn('Resume upload API error:', err.message)
+    return { success: false, error: err.message }
+  }
+}
+
+/**
+ * Update Application Status API
+ */
+export async function apiUpdateApplicationStatus(appId, status) {
+  console.log(`📡 [API POST] Updating application ${appId} status to ${status} via /api/applications/status`)
+  try {
+    const res = await fetch(`${API_BASE}/applications/status`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ appId, status }),
+    })
+    return await res.json()
+  } catch (err) {
+    console.warn('Application status API error:', err.message)
+    return { success: false, error: err.message }
+  }
+}
+
+/**
  * Resets database and local storage
  */
 export async function resetSystemData() {

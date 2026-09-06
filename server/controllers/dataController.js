@@ -391,3 +391,35 @@ export async function postCompanyJob(req, res) {
   }
 }
 
+export async function uploadResume(req, res) {
+  try {
+    const { email, resumeName, resumeData } = req.body
+    const db = await readDb()
+    if (db.student) {
+      db.student.resumeName = resumeName
+      db.student.resumeData = resumeData
+    }
+    await writeDb(db)
+    res.json({ success: true, message: 'Resume uploaded successfully', resumeName })
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message })
+  }
+}
+
+export async function updateApplicationStatus(req, res) {
+  try {
+    const { appId, status } = req.body
+    const db = await readDb()
+    if (db.student && db.student.applications) {
+      db.student.applications = db.student.applications.map((a) =>
+        (a.id === appId || a.jobId === appId) ? { ...a, status } : a
+      )
+    }
+    await writeDb(db)
+    res.json({ success: true, message: `Application status updated to ${status}`, appId, status })
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message })
+  }
+}
+
+

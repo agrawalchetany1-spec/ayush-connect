@@ -29,7 +29,9 @@ import {
   apiLogin,
   apiLogout,
   apiPostCompanyJob,
+  apiUpdateApplicationStatus,
   apiUpdateProfile,
+  apiUploadResume,
   fetchUserData,
   saveAssessmentResult,
   saveKeywords,
@@ -216,15 +218,17 @@ export default function App() {
     })
   }, [])
 
-  // Persist all users, active email, jobs, and applications to localStorage and Backend API
+  // Persist all users, active email, jobs, and applications to localStorage cache
   useEffect(() => {
-    const payload = {
-      users,
-      currentStudentEmail: currentEmail,
-      jobs,
-      applications,
-    }
-    saveUserData(payload)
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({
+        users,
+        currentStudentEmail: currentEmail,
+        jobs,
+        applications,
+      }),
+    )
   }, [users, currentEmail, jobs, applications])
 
   function handleStudentLogin(email) {
@@ -418,6 +422,7 @@ export default function App() {
   }
 
   function rejectApplicant(appId) {
+    apiUpdateApplicationStatus(appId, 'Rejected')
     setApplications((prev) =>
       prev.map((app) =>
         (app.id || app.jobId) === appId
@@ -2247,6 +2252,11 @@ export default function App() {
                     specialization: spec.id,
                     interest: spec.shortTitle,
                   }))
+                  apiUpdateProfile({
+                    email: currentEmail,
+                    specialization: spec.id,
+                    interest: spec.shortTitle,
+                  })
                 }}
                 className={`group relative flex flex-col justify-between rounded-2xl border p-5 text-left transition ${
                   isSelected
@@ -2506,11 +2516,17 @@ export default function App() {
                   if (!file) return
                   const reader = new FileReader()
                   reader.onload = () => {
+                    const fileData = String(reader.result || '')
                     setStudent((s) => ({
                       ...s,
                       resumeName: file.name,
-                      resumeData: String(reader.result || ''),
+                      resumeData: fileData,
                     }))
+                    apiUploadResume({
+                      email: currentEmail,
+                      resumeName: file.name,
+                      resumeData: fileData,
+                    })
                   }
                   reader.readAsDataURL(file)
                 }}

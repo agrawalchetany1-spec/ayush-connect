@@ -10,9 +10,11 @@ import {
   resetData,
   saveAssessment,
   submitApplication,
+  updateApplicationStatus,
   updateKeywords,
   updateProfile,
   updateUserData,
+  uploadResume,
 } from '../controllers/dataController.js'
 
 const router = Router()
@@ -28,11 +30,13 @@ router.post('/logout', handleLogout)
 router.get('/user-data', getUserData)
 router.post('/user-data', updateUserData)
 router.post('/profile', updateProfile)
+router.post('/resume', uploadResume)
 
 // Specialized action endpoints
 router.post('/keywords', updateKeywords)
 router.post('/assessments', saveAssessment)
 router.post('/applications', submitApplication)
+router.post('/applications/status', updateApplicationStatus)
 router.post('/mentor-bookings', bookMentor)
 router.post('/courses/enroll', enrollCourse)
 router.post('/company/jobs', postCompanyJob)

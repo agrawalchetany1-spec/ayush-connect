@@ -1,17 +1,24 @@
 {
   "student": {
-    "name": "Arjun",
+    "name": "Arjun Sharma",
     "email": "arjun@ayush.edu",
     "college": "National Institute of Ayurveda (NIA), Jaipur",
     "year": "Final Year (2024)",
     "course": "BAMS",
-    "selectedKeywords": [],
+    "selectedKeywords": [
+      "Pharmacognosy & Raw Material Testing",
+      "Quality Control (QC) & Assay Testing",
+      "Pharmacovigilance & Drug Safety",
+      "Herbal Standardization & API Standards"
+    ],
     "foundation": null,
     "specialization": null,
     "practicedSkills": {},
     "applications": [],
     "mentorBookings": [],
-    "enrolledCourses": []
+    "enrolledCourses": [],
+    "resumeName": "test-cv.pdf",
+    "resumeData": "data:application/pdf;base64,123"
   },
   "company": {
     "name": "Himalaya Wellness",
@@ -19,30 +26,7 @@
     "jobs": []
   },
   "metadata": {
-    "lastUpdated": "2026-09-06T12:27:51.515Z",
+    "lastUpdated": "2026-09-06T12:58:35.752Z",
     "version": "1.0.0"
-  },
-  "users": {
-    "arjun@ayush.edu": {
-      "student": {
-        "name": "Arjun",
-        "email": "arjun@ayush.edu",
-        "college": "National Institute of Ayurveda (NIA), Jaipur",
-        "year": "Final Year (2024)",
-        "course": "BAMS",
-        "selectedKeywords": [],
-        "foundation": null,
-        "specialization": null,
-        "practicedSkills": {},
-        "applications": [],
-        "mentorBookings": [],
-        "enrolledCourses": []
-      },
-      "foundation": null,
-      "specialization": null,
-      "specializationScores": {},
-      "roadmapProgress": {}
-    }
-  },
-  "currentStudentEmail": "arjun@ayush.edu"
+  }
 }
