@@ -23,7 +23,19 @@ import {
   Quiz,
   ResponseList,
 } from './UIComponents'
-import { fetchUserData, saveUserData } from './api'
+import {
+  apiBookMentor,
+  apiEnrollCourse,
+  apiLogin,
+  apiLogout,
+  apiPostCompanyJob,
+  apiUpdateProfile,
+  fetchUserData,
+  saveAssessmentResult,
+  saveKeywords,
+  saveUserData,
+  submitJobApplication,
+} from './api'
 
 export default function App() {
   const saved = useMemo(() => {
@@ -159,6 +171,12 @@ export default function App() {
       college: collegeInput,
       studyYear: studyYearInput,
     }))
+    apiUpdateProfile({
+      email: currentEmail,
+      contact: contactInput,
+      college: collegeInput,
+      studyYear: studyYearInput,
+    })
     setProfileSaved(true)
     setTimeout(() => setProfileSaved(false), 2500)
   }
@@ -167,6 +185,7 @@ export default function App() {
     setStudent((prev) => {
       const current = prev.keywords || []
       const next = current.includes(kw) ? current.filter((k) => k !== kw) : [...current, kw]
+      saveKeywords(next, prev)
       return { ...prev, keywords: next }
     })
   }
@@ -211,6 +230,7 @@ export default function App() {
   function handleStudentLogin(email) {
     if (!email) return
     const normalizedEmail = email.trim().toLowerCase()
+    apiLogin(normalizedEmail, 'student')
     const existingUserData = users[normalizedEmail]
 
     if (existingUserData) {
@@ -276,6 +296,7 @@ export default function App() {
   }
 
   function handleStudentLogout() {
+    apiLogout()
     setCurrentEmail(null)
     setView('landing')
   }
@@ -347,6 +368,7 @@ export default function App() {
           (a.student?.email && a.student.email.toLowerCase().trim() === userEmail)),
     )
     if (existing && existing.status !== 'Rejected') return
+    submitJobApplication(job.id, job.role, job.company, student)
     const payload = {
       id: `app-${Date.now()}`,
       jobId: job.id,
@@ -510,7 +532,10 @@ export default function App() {
           subtitle="Post internships and review AYUSH student matches."
           accent="bg-[#8a6a2a] hover:bg-[#6f5420]"
           onBack={() => setView('landing')}
-          onSubmit={() => setView('companyDashboard')}
+          onSubmit={({ email }) => {
+            apiLogin(email || 'hr@himalaya.com', 'company')
+            setView('companyDashboard')
+          }}
         />
       </Shell>
     )
@@ -764,7 +789,9 @@ export default function App() {
           questions={FOUNDATION_QUESTIONS}
           onCancel={() => setView('testsPage')}
           onFinish={(answers) => {
-            setFoundation(scoreAnswers(FOUNDATION_QUESTIONS, answers))
+            const result = scoreAnswers(FOUNDATION_QUESTIONS, answers)
+            setFoundation(result)
+            saveAssessmentResult('foundation', result, student)
             setView('testsPage')
           }}
         />
@@ -793,6 +820,7 @@ export default function App() {
               ...prev,
               [activeSpecializationId]: res,
             }))
+            saveAssessmentResult('specialization', res, student)
             setView('testsPage')
           }}
         />
@@ -909,7 +937,7 @@ export default function App() {
         onBack={() => setView('companyLogin')}
         backLabel="Back"
         right={
-          <button type="button" onClick={() => setView('landing')} className="text-sm text-[#6b7c76] hover:text-rose-700">
+          <button type="button" onClick={() => { apiLogout(); setView('landing') }} className="text-sm text-[#6b7c76] hover:text-rose-700">
             Logout
           </button>
         }
@@ -947,6 +975,7 @@ export default function App() {
                   tags: ['Company posting'],
                 }
                 setJobs((prev) => [posted, ...prev])
+                apiPostCompanyJob(posted)
                 setNewJob({ company: newJob.company, role: '', location: '', description: '', keywords: [] })
               }}
             >
@@ -1374,6 +1403,7 @@ export default function App() {
                           onClick={() => {
                             if (!isApplied) {
                               setAppliedGapJobs((prev) => [...prev, job.id])
+                              submitJobApplication(job.id, job.role, job.company, student)
                             }
                           }}
                           className={`rounded-xl px-4 py-2 text-xs font-semibold transition ${
@@ -1451,6 +1481,12 @@ export default function App() {
                           onClick={() => {
                             if (!isBooked) {
                               setBookedMentors((prev) => [...prev, m.id])
+                              bookMentorSession({
+                                mentorId: m.id,
+                                mentorName: m.name,
+                                keyword: m.keyword,
+                                organization: m.organization,
+                              }, student)
                             }
                             setMentorModal(m)
                           }}
@@ -1516,6 +1552,7 @@ export default function App() {
                         href={c.url}
                         target="_blank"
                         rel="noopener noreferrer"
+                        onClick={() => apiEnrollCourse(c.id, c.title)}
                         className="inline-flex items-center gap-1 rounded-xl bg-[#2F5D50] px-4 py-2 text-xs font-semibold text-white hover:bg-[#254a41] transition"
                       >
                         <span>Enroll & View Guide</span>

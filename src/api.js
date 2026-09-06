@@ -25,6 +25,7 @@ function setLocalCache(data) {
  * Fetches user data from backend API with fallback to localStorage
  */
 export async function fetchUserData() {
+  console.log('📡 [API GET] Fetching user data from /api/user-data')
   try {
     const res = await fetch(`${API_BASE}/user-data`, {
       headers: { Accept: 'application/json' },
@@ -32,16 +33,13 @@ export async function fetchUserData() {
     if (!res.ok) throw new Error(`API returned ${res.status}`)
     const json = await res.json()
     if (json.success && json.data) {
-      // Sync to localStorage
-      const studentData = json.data.student || json.data
-      setLocalCache(studentData)
-      return { source: 'api', data: studentData }
+      setLocalCache(json.data.student || json.data)
+      return { source: 'api', data: json.data }
     }
   } catch (err) {
     console.info('Backend API offline or unreachable, using local cache:', err.message)
   }
 
-  // Fallback to local storage
   const cached = getLocalCache()
   return { source: 'local', data: cached }
 }
@@ -50,9 +48,7 @@ export async function fetchUserData() {
  * Saves full user state to backend API and localStorage
  */
 export async function saveUserData(data) {
-  // Always update local cache immediately for instant UI response
   setLocalCache(data)
-
   try {
     const res = await fetch(`${API_BASE}/user-data`, {
       method: 'POST',
@@ -63,15 +59,68 @@ export async function saveUserData(data) {
     const json = await res.json()
     return { success: true, source: 'api', data: json.data?.student || json.data }
   } catch (err) {
-    console.info('Saved to localStorage (API offline):', err.message)
     return { success: true, source: 'local', data }
+  }
+}
+
+/**
+ * Student or Company Login API
+ */
+export async function apiLogin(email, role = 'student') {
+  console.log(`📡 [API POST] Logging in as ${role} (${email}) to /api/login`)
+  try {
+    const res = await fetch(`${API_BASE}/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, role }),
+    })
+    return await res.json()
+  } catch (err) {
+    console.warn('API login request error:', err.message)
+    return { success: false, error: err.message }
+  }
+}
+
+/**
+ * Logout API
+ */
+export async function apiLogout() {
+  console.log('📡 [API POST] Logging out from /api/logout')
+  try {
+    const res = await fetch(`${API_BASE}/logout`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+    })
+    return await res.json()
+  } catch (err) {
+    console.warn('API logout request error:', err.message)
+    return { success: true }
+  }
+}
+
+/**
+ * Update Profile Details API
+ */
+export async function apiUpdateProfile(profileData) {
+  console.log('📡 [API POST] Updating profile details to /api/profile', profileData)
+  try {
+    const res = await fetch(`${API_BASE}/profile`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(profileData),
+    })
+    return await res.json()
+  } catch (err) {
+    console.warn('API profile request error:', err.message)
+    return { success: false, error: err.message }
   }
 }
 
 /**
  * Saves selected keywords via backend API and updates local cache
  */
-export async function saveKeywords(keywords, currentData) {
+export async function saveKeywords(keywords, currentData = {}) {
+  console.log('📡 [API POST] Saving keywords to /api/keywords', keywords)
   const updated = { ...currentData, selectedKeywords: keywords }
   setLocalCache(updated)
 
@@ -93,7 +142,8 @@ export async function saveKeywords(keywords, currentData) {
 /**
  * Saves foundation or specialization assessment result
  */
-export async function saveAssessmentResult(type, result, currentData) {
+export async function saveAssessmentResult(type, result, currentData = {}) {
+  console.log(`📡 [API POST] Submitting ${type} test to /api/assessments`, result)
   const updated = { ...currentData, [type]: result }
   setLocalCache(updated)
 
@@ -115,7 +165,8 @@ export async function saveAssessmentResult(type, result, currentData) {
 /**
  * Submits an internship application via backend API
  */
-export async function submitJobApplication(jobId, role, company, currentData) {
+export async function submitJobApplication(jobId, role, company, currentData = {}) {
+  console.log(`📡 [API POST] Applying to ${role} at ${company} via /api/applications`)
   const newApp = {
     id: `app-${Date.now()}`,
     jobId,
@@ -148,7 +199,8 @@ export async function submitJobApplication(jobId, role, company, currentData) {
 /**
  * Schedules a mentor guidance session via backend API
  */
-export async function bookMentorSession(bookingData, currentData) {
+export async function bookMentorSession(bookingData, currentData = {}) {
+  console.log('📡 [API POST] Booking mentor guidance session via /api/mentor-bookings', bookingData)
   const booking = {
     id: `mb-${Date.now()}`,
     ...bookingData,
@@ -176,10 +228,49 @@ export async function bookMentorSession(bookingData, currentData) {
   }
 }
 
+export const apiBookMentor = bookMentorSession
+
+/**
+ * Enroll in a certified course via backend API
+ */
+export async function apiEnrollCourse(courseId, courseTitle) {
+  console.log(`📡 [API POST] Enrolling in course ${courseId} via /api/courses/enroll`)
+  try {
+    const res = await fetch(`${API_BASE}/courses/enroll`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ courseId, courseTitle }),
+    })
+    return await res.json()
+  } catch (err) {
+    console.warn('Course enrollment API error:', err.message)
+    return { success: false, error: err.message }
+  }
+}
+
+/**
+ * Post a new company internship opening via backend API
+ */
+export async function apiPostCompanyJob(jobData) {
+  console.log('📡 [API POST] Posting new company job via /api/company/jobs', jobData)
+  try {
+    const res = await fetch(`${API_BASE}/company/jobs`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(jobData),
+    })
+    return await res.json()
+  } catch (err) {
+    console.warn('Company job posting API error:', err.message)
+    return { success: false, error: err.message }
+  }
+}
+
 /**
  * Resets database and local storage
  */
 export async function resetSystemData() {
+  console.log('📡 [API POST] Resetting system data via /api/reset')
   localStorage.removeItem(STORAGE_KEY)
   try {
     await fetch(`${API_BASE}/reset`, { method: 'POST' })

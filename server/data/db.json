@@ -1,15 +1,11 @@
 {
   "student": {
-    "name": "Arjun Sharma",
+    "name": "Arjun",
     "email": "arjun@ayush.edu",
     "college": "National Institute of Ayurveda (NIA), Jaipur",
     "year": "Final Year (2024)",
     "course": "BAMS",
-    "selectedKeywords": [
-      "GMP & Schedule T Compliance",
-      "Pharmacognosy & Raw Material Testing",
-      "Formulation R&D & Pharmaceutics"
-    ],
+    "selectedKeywords": [],
     "foundation": null,
     "specialization": null,
     "practicedSkills": {},
@@ -23,7 +19,30 @@
     "jobs": []
   },
   "metadata": {
-    "lastUpdated": "2026-09-06T11:49:47.616Z",
+    "lastUpdated": "2026-09-06T12:27:51.515Z",
     "version": "1.0.0"
-  }
+  },
+  "users": {
+    "arjun@ayush.edu": {
+      "student": {
+        "name": "Arjun",
+        "email": "arjun@ayush.edu",
+        "college": "National Institute of Ayurveda (NIA), Jaipur",
+        "year": "Final Year (2024)",
+        "course": "BAMS",
+        "selectedKeywords": [],
+        "foundation": null,
+        "specialization": null,
+        "practicedSkills": {},
+        "applications": [],
+        "mentorBookings": [],
+        "enrolledCourses": []
+      },
+      "foundation": null,
+      "specialization": null,
+      "specializationScores": {},
+      "roadmapProgress": {}
+    }
+  },
+  "currentStudentEmail": "arjun@ayush.edu"
 }

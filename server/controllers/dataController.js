@@ -222,3 +222,172 @@ export async function resetData(req, res) {
     res.status(500).json({ success: false, error: err.message })
   }
 }
+
+export async function handleLogin(req, res) {
+  try {
+    const { email, role = 'student' } = req.body
+    if (!email) {
+      return res.status(400).json({ success: false, error: 'Email is required' })
+    }
+    const db = await readDb()
+    const normalized = email.trim().toLowerCase()
+
+    if (role === 'company') {
+      db.company = {
+        ...db.company,
+        email: normalized,
+        name: normalized.includes('himalaya') ? 'Himalaya Wellness' : 'AYUSH Industry Partner',
+      }
+      await writeDb(db)
+      return res.json({
+        success: true,
+        message: 'Company logged in successfully',
+        role: 'company',
+        user: db.company,
+      })
+    }
+
+    // Student Login
+    if (!db.users) db.users = {}
+    if (!db.users[normalized]) {
+      const rawPrefix = (normalized.includes('@') ? normalized.split('@')[0] : normalized).trim()
+      const formattedName =
+        rawPrefix
+          .replace(/[._-]+/g, ' ')
+          .replace(/\b\w/g, (c) => c.toUpperCase()) || rawPrefix
+
+      db.users[normalized] = {
+        student: {
+          ...DEFAULT_STATE.student,
+          email: normalized,
+          name: formattedName,
+        },
+        foundation: null,
+        specialization: null,
+        specializationScores: {},
+        roadmapProgress: {},
+      }
+    }
+
+    db.student = db.users[normalized].student
+    db.currentStudentEmail = normalized
+    await writeDb(db)
+
+    res.json({
+      success: true,
+      message: 'Student logged in successfully',
+      role: 'student',
+      user: db.users[normalized],
+    })
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message })
+  }
+}
+
+export async function handleLogout(req, res) {
+  try {
+    const db = await readDb()
+    db.currentStudentEmail = null
+    await writeDb(db)
+    res.json({ success: true, message: 'Logged out successfully' })
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message })
+  }
+}
+
+export async function updateProfile(req, res) {
+  try {
+    const { email, college, studyYear, contact, name } = req.body
+    const db = await readDb()
+    const normalized = (email || db.currentStudentEmail || db.student?.email || '').trim().toLowerCase()
+
+    const updateFields = {
+      ...(college !== undefined && { college }),
+      ...(studyYear !== undefined && { studyYear }),
+      ...(contact !== undefined && { contact }),
+      ...(name !== undefined && { name }),
+    }
+
+    if (db.student) {
+      db.student = { ...db.student, ...updateFields }
+    }
+    if (normalized && db.users && db.users[normalized]) {
+      db.users[normalized].student = { ...db.users[normalized].student, ...updateFields }
+    }
+
+    await writeDb(db)
+    res.json({
+      success: true,
+      message: 'Profile details saved successfully',
+      student: db.student,
+    })
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message })
+  }
+}
+
+export async function enrollCourse(req, res) {
+  try {
+    const { courseId, courseTitle } = req.body
+    if (!courseId) {
+      return res.status(400).json({ success: false, error: 'courseId is required' })
+    }
+    const db = await readDb()
+    const enrollment = {
+      courseId,
+      courseTitle: courseTitle || courseId,
+      enrolledAt: new Date().toISOString(),
+      status: 'Active',
+    }
+
+    const currentEnrollments = db.student.enrolledCourses || []
+    if (!currentEnrollments.some((e) => (typeof e === 'string' ? e === courseId : e.courseId === courseId))) {
+      db.student.enrolledCourses = [...currentEnrollments, enrollment]
+      await writeDb(db)
+    }
+
+    res.json({
+      success: true,
+      message: 'Enrolled in course successfully',
+      enrolledCourses: db.student.enrolledCourses,
+    })
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message })
+  }
+}
+
+export async function postCompanyJob(req, res) {
+  try {
+    const { company, role, location, description, keywords, openings } = req.body
+    if (!role || !company) {
+      return res.status(400).json({ success: false, error: 'Role and Company are required' })
+    }
+    const db = await readDb()
+    const newJob = {
+      id: `company-job-${Date.now()}`,
+      company,
+      role,
+      location: location || 'India',
+      description: description || '',
+      keywords: keywords || [],
+      openings: Number(openings) || 1,
+      applicants: 0,
+      postedByCompany: true,
+      postedAt: new Date().toISOString(),
+      tags: ['Company posting'],
+    }
+    if (!db.jobs) db.jobs = []
+    db.jobs.unshift(newJob)
+    await writeDb(db)
+
+    res.json({
+      success: true,
+      message: 'Job posting created successfully',
+      job: newJob,
+      jobs: db.jobs,
+    })
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message })
+  }
+}
+
