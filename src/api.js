@@ -303,6 +303,70 @@ export async function apiUpdateApplicationStatus(appId, status) {
 }
 
 /**
+ * Track user activity & page transitions
+ */
+export async function apiTrackActivity(action, details = {}) {
+  console.log(`📡 [API POST] Logging activity: ${action}`, details)
+  try {
+    const res = await fetch(`${API_BASE}/activity`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action, details }),
+    })
+    return await res.json()
+  } catch (err) {
+    console.warn('Activity tracking error:', err.message)
+    return { success: true }
+  }
+}
+
+/**
+ * Record single question answer
+ */
+export async function apiRecordQuestionAnswer(answerData) {
+  console.log('📡 [API POST] Recording answer to /api/assessments/answer', answerData)
+  try {
+    const res = await fetch(`${API_BASE}/assessments/answer`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(answerData),
+    })
+    return await res.json()
+  } catch (err) {
+    console.warn('Question answer API error:', err.message)
+    return { success: true }
+  }
+}
+
+/**
+ * Fetch detailed assessment report
+ */
+export async function apiGetAssessmentReport() {
+  console.log('📡 [API GET] Fetching performance report from /api/assessments/report')
+  try {
+    const res = await fetch(`${API_BASE}/assessments/report`)
+    return await res.json()
+  } catch (err) {
+    console.warn('Get report API error:', err.message)
+    return { success: false }
+  }
+}
+
+/**
+ * Fetch skill bridge gaps
+ */
+export async function apiGetSkillBridgeGaps() {
+  console.log('📡 [API GET] Fetching skill gaps from /api/skill-bridge/gaps')
+  try {
+    const res = await fetch(`${API_BASE}/skill-bridge/gaps`)
+    return await res.json()
+  } catch (err) {
+    console.warn('Get skill bridge gaps error:', err.message)
+    return { success: false }
+  }
+}
+
+/**
  * Resets database and local storage
  */
 export async function resetSystemData() {

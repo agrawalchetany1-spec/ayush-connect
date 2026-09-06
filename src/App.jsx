@@ -26,9 +26,12 @@ import {
 import {
   apiBookMentor,
   apiEnrollCourse,
+  apiGetAssessmentReport,
+  apiGetSkillBridgeGaps,
   apiLogin,
   apiLogout,
   apiPostCompanyJob,
+  apiTrackActivity,
   apiUpdateApplicationStatus,
   apiUpdateProfile,
   apiUploadResume,
@@ -648,7 +651,10 @@ export default function App() {
               </div>
               <button
                 type="button"
-                onClick={() => setView('foundationTest')}
+                onClick={() => {
+                  apiTrackActivity('start_foundation_test')
+                  setView('foundationTest')
+                }}
                 className={`rounded-xl px-6 py-3 font-semibold transition ${
                   foundation
                     ? 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200'
@@ -684,7 +690,10 @@ export default function App() {
                 </div>
                 <button
                   type="button"
-                  onClick={() => setView('specializationTest')}
+                  onClick={() => {
+                    apiTrackActivity('start_track_test', { track: activeSpecialization.title })
+                    setView('specializationTest')
+                  }}
                   className={`rounded-xl px-6 py-3 font-semibold transition ${
                     specialization
                       ? 'bg-[#e8f0ec] text-[#2F5D50] hover:bg-[#d5e6de]'
@@ -699,31 +708,35 @@ export default function App() {
             <div className="rounded-2xl border border-dashed border-[#d9d1c3] bg-white p-6 shadow-sm">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                  <span className="inline-block rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-800">
-                    Track-Specific Test · Track Selection Required
-                  </span>
-                  <h2 className="mt-2 font-serif text-2xl text-[#1f3d36]">
-                    2. Specialization Test
-                  </h2>
+                  <h2 className="font-serif text-2xl text-[#1f3d36]">2. Track-Specific Assessment</h2>
                   <p className="mt-1 text-sm text-[#5c6b66]">
-                    Please select your specialization track in the section above before taking this test.
+                    Please select a track (Ayurveda, Yoga, Unani, Siddha, or Homeopathy) on your student dashboard to unlock your track-specific exam.
                   </p>
                 </div>
-                <span className="rounded-xl border border-[#d9d1c3] bg-[#faf8f3] px-5 py-2.5 text-xs font-semibold text-[#8a6a2a]">
-                  Track selection needed
-                </span>
+                <button
+                  type="button"
+                  onClick={() => setView('studentDashboard')}
+                  className="rounded-xl border border-[#2F5D50] px-6 py-3 font-semibold text-[#2F5D50] hover:bg-[#e8f0ec] transition"
+                >
+                  Go to Dashboard to Select Track
+                </button>
               </div>
             </div>
           )}
 
-          {/* Analysis preview or status */}
-          <div className="rounded-2xl border border-[#e4ddd0] bg-[#faf8f3] p-6">
-            <h3 className="font-semibold text-[#1f3d36]">Assessment readiness & Evaluation</h3>
-            {analysisReady ? (
-              <div className="mt-3 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          {/* Test Status Banner */}
+          <div className="rounded-2xl border border-[#e4ddd0] bg-white p-6">
+            {foundation && specialization ? (
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                  <p className="text-sm text-[#2F5D50] font-semibold">
-                    ✓ Both tests completed! Assessment data is ready for comprehensive analysis.
+                  <div className="flex items-center gap-2">
+                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-100 text-xs font-bold text-emerald-800">
+                      ✓
+                    </span>
+                    <h3 className="font-serif text-lg font-bold text-[#1f3d36]">All tests completed!</h3>
+                  </div>
+                  <p className="mt-1 text-sm text-[#5c6b66]">
+                    Combined readiness score: <strong className="text-[#2F5D50]">{overall}%</strong>.
                   </p>
                   <p className="mt-1 text-xs text-[#5c6b66]">
                     Click the Analysis button to calculate your official readiness report card and diagnose your missing industry keywords.
@@ -732,7 +745,11 @@ export default function App() {
                 <div className="flex flex-wrap gap-2.5">
                   <button
                     type="button"
-                    onClick={() => setView('reportPage')}
+                    onClick={() => {
+                      apiGetAssessmentReport()
+                      apiTrackActivity('view_report')
+                      setView('reportPage')
+                    }}
                     className="inline-flex items-center gap-2 rounded-xl bg-[#8a6a2a] px-5 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-[#6f5420] transition"
                   >
                     <span>📊 View Full Analysis & Report Card Page (With Graphs)</span>
@@ -761,7 +778,11 @@ export default function App() {
                 <h3 className="font-semibold text-[#1f3d36]">Review your submitted answers</h3>
                 <button
                   type="button"
-                  onClick={() => setView('reportPage')}
+                  onClick={() => {
+                    apiGetAssessmentReport()
+                    apiTrackActivity('view_report')
+                    setView('reportPage')
+                  }}
                   className="text-xs font-semibold text-[#8a6a2a] hover:underline"
                 >
                   📊 Open Full Analysis & Missing Keywords Report Page →
@@ -1306,7 +1327,10 @@ export default function App() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
             <button
               type="button"
-              onClick={() => setSkillBridgeTab('internships')}
+              onClick={() => {
+                apiTrackActivity('skill_bridge_tab_internships')
+                setSkillBridgeTab('internships')
+              }}
               className={`flex items-center justify-center gap-2.5 rounded-2xl px-5 py-4 text-sm font-semibold transition ${
                 skillBridgeTab === 'internships'
                   ? 'bg-[#2F5D50] text-white shadow-lg ring-2 ring-[#2F5D50]'
@@ -1322,7 +1346,10 @@ export default function App() {
 
             <button
               type="button"
-              onClick={() => setSkillBridgeTab('mentors')}
+              onClick={() => {
+                apiTrackActivity('skill_bridge_tab_mentors')
+                setSkillBridgeTab('mentors')
+              }}
               className={`flex items-center justify-center gap-2.5 rounded-2xl px-5 py-4 text-sm font-semibold transition ${
                 skillBridgeTab === 'mentors'
                   ? 'bg-[#2F5D50] text-white shadow-lg ring-2 ring-[#2F5D50]'
@@ -1338,7 +1365,10 @@ export default function App() {
 
             <button
               type="button"
-              onClick={() => setSkillBridgeTab('courses')}
+              onClick={() => {
+                apiTrackActivity('skill_bridge_tab_courses')
+                setSkillBridgeTab('courses')
+              }}
               className={`flex items-center justify-center gap-2.5 rounded-2xl px-5 py-4 text-sm font-semibold transition ${
                 skillBridgeTab === 'courses'
                   ? 'bg-[#2F5D50] text-white shadow-lg ring-2 ring-[#2F5D50]'
@@ -1877,7 +1907,11 @@ export default function App() {
             </div>
             <button
               type="button"
-              onClick={() => setView('skillBridgePage')}
+              onClick={() => {
+                apiGetSkillBridgeGaps()
+                apiTrackActivity('open_skill_bridge')
+                setView('skillBridgePage')
+              }}
               className="inline-flex items-center gap-1.5 rounded-xl bg-[#8a6a2a] px-5 py-3 text-sm font-bold text-white shadow-md hover:bg-[#6f5420] transition whitespace-nowrap transform hover:-translate-y-0.5"
             >
               <span>🌉 Bridge in Skill Bridge Page</span>
@@ -2131,8 +2165,10 @@ export default function App() {
                         type="button"
                         onClick={() => {
                           if (!analysisReady) {
+                            apiTrackActivity('go_to_tests')
                             setView('testsPage')
                           } else {
+                            apiTrackActivity('view_job_roadmap', { jobId: job.id, role: job.role })
                             setRoadmapJobId(job.id)
                             setView('roadmap')
                           }
@@ -2210,7 +2246,10 @@ export default function App() {
         </div>
         <button
           type="button"
-          onClick={() => setView('testsPage')}
+          onClick={() => {
+            apiTrackActivity('go_to_tests')
+            setView('testsPage')
+          }}
           className="inline-flex items-center gap-2.5 rounded-2xl bg-[#2F5D50] px-6 py-3.5 text-base font-semibold text-white shadow-lg shadow-[#2F5D50]/20 transition hover:bg-[#254a41]"
         >
           <span>📝</span>
@@ -2373,7 +2412,11 @@ export default function App() {
             </div>
             <button
               type="button"
-              onClick={() => setView('skillBridgePage')}
+              onClick={() => {
+                apiGetSkillBridgeGaps()
+                apiTrackActivity('open_skill_bridge')
+                setView('skillBridgePage')
+              }}
               className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#e8c07a] px-6 py-4 text-sm font-bold text-[#3a2c10] shadow-lg transition hover:bg-[#dfb366] whitespace-nowrap transform hover:-translate-y-0.5"
             >
               <span>🌉 Open Skill Bridge Page</span>
@@ -2550,7 +2593,10 @@ export default function App() {
             </div>
             <button
               type="button"
-              onClick={() => setView('testsPage')}
+              onClick={() => {
+                apiTrackActivity('go_to_tests')
+                setView('testsPage')
+              }}
               className="inline-flex items-center gap-2 rounded-xl bg-[#2F5D50] px-6 py-3 font-semibold text-white transition hover:bg-[#254a41] shadow-sm"
             >
               <span>📝</span> Go to Tests Page →
@@ -2616,7 +2662,10 @@ export default function App() {
                 </p>
                 <button
                   type="button"
-                  onClick={() => setView('testsPage')}
+                  onClick={() => {
+                    apiTrackActivity('go_to_tests')
+                    setView('testsPage')
+                  }}
                   className="mt-3 inline-flex items-center gap-1.5 rounded-xl bg-[#2F5D50] px-5 py-2.5 text-xs font-semibold text-white hover:bg-[#254a41] transition"
                 >
                   <span>📝</span> Go to Tests Page →
@@ -2659,7 +2708,11 @@ export default function App() {
                   </div>
                   <button
                     type="button"
-                    onClick={() => setView('reportPage')}
+                    onClick={() => {
+                      apiGetAssessmentReport()
+                      apiTrackActivity('view_report')
+                      setView('reportPage')
+                    }}
                     className="self-start sm:self-auto inline-flex items-center gap-2 rounded-xl bg-[#8a6a2a] px-5 py-3 text-sm font-bold text-white shadow-md hover:bg-[#6f5420] transition whitespace-nowrap transform hover:-translate-y-0.5"
                   >
                     <span>📊 Open Full Report Page</span>
@@ -2722,7 +2775,10 @@ export default function App() {
                   </div>
                   <button
                     type="button"
-                    onClick={() => setView('companyJobsPage')}
+                    onClick={() => {
+                      apiTrackActivity('open_company_jobs')
+                      setView('companyJobsPage')
+                    }}
                     className="self-start sm:self-auto inline-flex items-center gap-2 rounded-xl bg-[#2F5D50] px-5 py-3 text-sm font-bold text-white shadow-md hover:bg-[#254a41] transition whitespace-nowrap transform hover:-translate-y-0.5"
                   >
                     <span>🏢 Open Apply for Companies Page</span>

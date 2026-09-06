@@ -2,14 +2,18 @@ import { Router } from 'express'
 import {
   bookMentor,
   enrollCourse,
+  getAssessmentReport,
   getHealth,
+  getSkillBridgeGaps,
   getUserData,
   handleLogin,
   handleLogout,
   postCompanyJob,
+  recordAnswer,
   resetData,
   saveAssessment,
   submitApplication,
+  trackActivity,
   updateApplicationStatus,
   updateKeywords,
   updateProfile,
@@ -22,6 +26,9 @@ const router = Router()
 // Health check
 router.get('/health', getHealth)
 
+// Activity & navigation tracking
+router.post('/activity', trackActivity)
+
 // Auth endpoints
 router.post('/login', handleLogin)
 router.post('/logout', handleLogout)
@@ -32,13 +39,20 @@ router.post('/user-data', updateUserData)
 router.post('/profile', updateProfile)
 router.post('/resume', uploadResume)
 
-// Specialized action endpoints
-router.post('/keywords', updateKeywords)
+// Assessments & Reports
 router.post('/assessments', saveAssessment)
-router.post('/applications', submitApplication)
-router.post('/applications/status', updateApplicationStatus)
+router.post('/assessments/answer', recordAnswer)
+router.get('/assessments/report', getAssessmentReport)
+
+// Skill Bridge & Keywords
+router.get('/skill-bridge/gaps', getSkillBridgeGaps)
+router.post('/keywords', updateKeywords)
 router.post('/mentor-bookings', bookMentor)
 router.post('/courses/enroll', enrollCourse)
+
+// Applications & Company
+router.post('/applications', submitApplication)
+router.post('/applications/status', updateApplicationStatus)
 router.post('/company/jobs', postCompanyJob)
 router.post('/reset', resetData)
 

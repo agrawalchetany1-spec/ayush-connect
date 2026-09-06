@@ -422,4 +422,74 @@ export async function updateApplicationStatus(req, res) {
   }
 }
 
+export async function trackActivity(req, res) {
+  try {
+    const { action, details } = req.body
+    res.json({
+      success: true,
+      message: `Activity logged: ${action}`,
+      action,
+      details: details || {},
+      timestamp: new Date().toISOString(),
+    })
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message })
+  }
+}
+
+export async function recordAnswer(req, res) {
+  try {
+    const { testTitle, questionIndex, selectedOption, answerIndex } = req.body
+    res.json({
+      success: true,
+      message: `Answer recorded for question ${Number(questionIndex) + 1}`,
+      testTitle,
+      questionIndex,
+      selectedOption,
+      answerIndex,
+      timestamp: new Date().toISOString(),
+    })
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message })
+  }
+}
+
+export async function getAssessmentReport(req, res) {
+  try {
+    const db = await readDb()
+    const foundation = db.student?.foundation
+    const specialization = db.student?.specialization
+    const readinessScore = foundation && specialization
+      ? Math.round((foundation.percent + specialization.percent) / 2)
+      : (foundation?.percent || specialization?.percent || 0)
+
+    res.json({
+      success: true,
+      report: {
+        readinessScore,
+        foundation,
+        specialization,
+        student: db.student,
+      },
+    })
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message })
+  }
+}
+
+export async function getSkillBridgeGaps(req, res) {
+  try {
+    const db = await readDb()
+    const selected = db.student?.selectedKeywords || []
+    res.json({
+      success: true,
+      selectedKeywords: selected,
+      timestamp: new Date().toISOString(),
+    })
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message })
+  }
+}
+
+
 

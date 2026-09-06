@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { apiRecordQuestionAnswer } from './api'
 
 export function LeafMark({ className = 'h-8 w-8' }) {
   return (
@@ -127,6 +128,13 @@ export function Quiz({ title, questions, onFinish, onCancel, initialAnswers = []
                 const next = [...answers]
                 next[index] = i
                 setAnswers(next)
+                apiRecordQuestionAnswer({
+                  testTitle: title,
+                  questionIndex: index,
+                  questionText: current.q,
+                  selectedOption: option,
+                  answerIndex: i,
+                })
               }}
               className={`block w-full rounded-xl border px-4 py-3 text-left transition ${
                 selected === i
